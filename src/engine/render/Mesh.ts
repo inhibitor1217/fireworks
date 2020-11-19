@@ -2,6 +2,7 @@ export default class Mesh {
     private gl: WebGL2RenderingContext;
     private vao: WebGLVertexArrayObject;
     private vbo: WebGLBuffer;
+    private ibo: WebGLBuffer;
 
     private _numVertices: number;
     get numVertices() {
@@ -26,8 +27,14 @@ export default class Mesh {
             throw Error('Unable to create buffer.');
         }
 
+        const ibo = this.gl.createBuffer();
+        if (!ibo) {
+            throw Error('Unable to create buffer.');
+        }
+
         this.vao = vao;
         this.vbo = vbo;
+        this.ibo = ibo;
 
         this._numVertices = 0;
 
@@ -46,6 +53,18 @@ export default class Mesh {
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
     }
 
+    bindVertexIndices(buffer: ArrayBuffer): void {
+        if (this.disposed) {
+            return;
+        }
+
+        this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.ibo);
+
+        this.gl.bufferData(this.gl.ELEMENT_ARRAY_BUFFER, buffer, this.gl.STATIC_DRAW);
+
+        this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, null);
+    }
+
     commit(attributes: { dataType: GLenum; dimension: number; }[]): void {
         if (this.disposed) {
             return;
@@ -57,6 +76,7 @@ export default class Mesh {
 
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, this.vbo);
         this.gl.bindVertexArray(this.vao);
+        this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, this.ibo);
 
         const stride = attributes
             .map(({ dataType, dimension }) => this.dataTypeToSize(dataType) * dimension)
@@ -70,6 +90,7 @@ export default class Mesh {
 
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
         this.gl.bindVertexArray(null);
+        this.gl.bindBuffer(this.gl.ELEMENT_ARRAY_BUFFER, null);
     }
 
     start(): void {
@@ -83,7 +104,7 @@ export default class Mesh {
         if (this.disposed) {
             return;
         }
-        this.gl.drawArrays(this.gl.TRIANGLES, 0, this._numVertices);
+        this.gl.drawElements(this.gl.TRIANGLES, this._numVertices, this.gl.UNSIGNED_INT, 0);
     }
 
     stop(): void {
@@ -102,6 +123,7 @@ export default class Mesh {
 
         this.gl.deleteVertexArray(this.vao);
         this.gl.deleteBuffer(this.vbo);
+        this.gl.deleteBuffer(this.ibo);
     }
 
     private dataTypeToSize(type: GLenum): GLsizei {
