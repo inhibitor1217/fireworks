@@ -18,4 +18,5 @@ export default class Color {
 
 export const Colors = {
     black: new Color(0, 0, 0),
+    white: new Color(1, 1, 1),
 };
