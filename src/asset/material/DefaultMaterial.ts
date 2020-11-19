@@ -1,5 +1,5 @@
-import Material from "../../engine/Material";
-import Program from "../../engine/Program";
+import Material from "../../engine/render/Material";
+import Program from "../../engine/render/Program";
 import Color, { Colors } from "../../engine/util/Color";
 import { fragmentShader, vertexShader } from "../../resource/materials/default";
 
