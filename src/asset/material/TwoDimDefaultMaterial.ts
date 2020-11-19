@@ -1,15 +1,15 @@
-import Material from "../../engine/render/Material";
+import Material from "../../engine/render/Material"
 import Program from "../../engine/render/Program";
-import Color, { Colors } from "../../engine/util/Color";
-import { fragmentShader, vertexShader } from "../../resource/materials/default";
+import Color, { Colors } from "../../engine/util/Color"
+import { fragmentShader, vertexShader } from "../../resource/materials/2d";
 
-type DefaultMaterialConfig = {
+type TwoDimDefaultMaterialConfig = {
     color?: Color;
-};
+}
 
-export default class DefaultMaterial extends Material {
-    private _config: DefaultMaterialConfig | undefined;
-    get config(): DefaultMaterialConfig | undefined {
+export default class TwoDimDefaultMaterial extends Material {
+    private _config: TwoDimDefaultMaterialConfig | undefined;
+    get config(): TwoDimDefaultMaterialConfig | undefined {
         return this._config;
     }
 
@@ -24,7 +24,7 @@ export default class DefaultMaterial extends Material {
         this.program.stop();
     }
 
-    constructor(gl: WebGL2RenderingContext, config?: DefaultMaterialConfig) {
+    constructor(gl: WebGL2RenderingContext, config?: TwoDimDefaultMaterialConfig) {
         const program = new Program(
             gl, { vertexShaderSource: vertexShader, fragmentShaderSource: fragmentShader }
         );
