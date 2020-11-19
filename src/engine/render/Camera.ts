@@ -39,6 +39,7 @@ export default class Camera {
                 this._config.near, 
                 this._config.far
             );
+            this.dirty = false;
         }
 
         return this._projection;

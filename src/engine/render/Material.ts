@@ -1,17 +1,20 @@
 import Program from "./Program";
 
 export default class Material {
-    protected program: Program;
+    private _program: Program;
+    get program(): Program {
+        return this._program;
+    }
     
     constructor(program: Program) {
-        this.program = program;
+        this._program = program;
     }
 
     start(): void {
-        this.program.start();
+        this._program.start();
     }
 
     stop(): void {
-        this.program.stop();
+        this._program.stop();
     }
 }

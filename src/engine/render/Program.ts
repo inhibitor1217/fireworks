@@ -1,3 +1,5 @@
+import { mat4 } from 'gl-matrix';
+
 type ProgramConfig = {
     vertexShaderSource: string;
     fragmentShaderSource: string;
@@ -79,6 +81,10 @@ export default class Program {
         } else {
             this.gl.uniform1f(this.getUniformLocation(key), value);
         }
+    }
+
+    setMatrix(key: string, value: mat4) {
+        this.gl.uniformMatrix4fv(this.getUniformLocation(key), false, value);
     }
 
     private createShader(type: ShaderType, source: string): WebGLShader {
