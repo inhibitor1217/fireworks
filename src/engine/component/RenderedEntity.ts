@@ -35,4 +35,8 @@ export default class RenderedEntity extends Entity {
         this.mesh.stop();
         this.material.stop();
     }
+
+    dispose(): void {
+        this.mesh.dispose();
+    }
 }

@@ -11,6 +11,15 @@ type SquareMeshParams = {
     }
 };
 
+type TriangleMeshParams = {
+    twoDim: boolean;
+    gradient?: {
+        top: Color;
+        bottomLeft: Color;
+        bottomRight: Color;
+    };
+};
+
 const Meshes = {
     square(gl: WebGL2RenderingContext, params?: SquareMeshParams): Mesh {
         const mesh = new Mesh(gl);
@@ -58,6 +67,49 @@ const Meshes = {
         mesh.commit(vertexAttributes);
         
         mesh.numVertices = 6;
+
+        return mesh;
+    },
+    triangle(gl: WebGL2RenderingContext, params?: TriangleMeshParams): Mesh {
+        const mesh = new Mesh(gl);
+
+        const { twoDim, gradient } = params || {};
+
+        const vertices = [
+            {
+                pos2d: [0, Math.sqrt(3) / 4],
+                color: gradient?.top.values,
+            },
+            {
+                pos2d: [-0.5, -0.5],
+                color: gradient?.bottomLeft.values,
+            },
+            {
+                pos2d: [0.5, -0.5],
+                color: gradient?.bottomRight.values,
+            },
+        ];
+
+        const vertexBufferData = new Float32Array([
+            ...vertices.reduce<number[]>((acc, { pos2d, color }) => [
+                ...acc,
+                ...(twoDim ? pos2d : []),
+                ...(gradient ? (color || []) : [])
+            ], []),
+        ]);
+
+        const vertexAttributes = [
+            ...(twoDim ? [{ dataType: gl.FLOAT, dimension: 2 }] : []),
+            ...(gradient ? [{ dataType: gl.FLOAT, dimension: 4 }] : [])
+        ];
+
+        mesh.bindVertices(vertexBufferData);
+
+        mesh.bindVertexIndices(new Uint32Array([ 0, 1, 2 ]));
+
+        mesh.commit(vertexAttributes);
+
+        mesh.numVertices = 3;
 
         return mesh;
     },
