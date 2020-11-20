@@ -3,9 +3,11 @@ export const vertexShader = `#version 300 es
 layout(location = 0) in vec2 pos;
 
 uniform mat4 worldTransform;
+uniform mat4 inverseCameraTransform;
+uniform mat4 projection;
 
 void main() {
-    gl_Position = worldTransform * vec4(pos, 0, 1);
+    gl_Position = projection * inverseCameraTransform * worldTransform * vec4(pos, 0, 1);
 }
 
 `;

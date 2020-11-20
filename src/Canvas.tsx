@@ -4,6 +4,7 @@ import TwoDimDefaultMaterial from './asset/material/TwoDimDefaultMaterial';
 import Mesh from './engine/render/Mesh';
 import Transform from './engine/transform/Transform';
 import { Colors } from './engine/util/Color';
+import OrthogonalCamera from './engine/component/camera/OrthogonalCamera';
 
 interface CanvasProps {
     width: number;
@@ -23,6 +24,7 @@ function getWebGLContext(canvas: HTMLCanvasElement) {
 
 const Canvas: React.FunctionComponent<CanvasProps> = ({ width, height }) => {
     const canvasRef = React.useRef<HTMLCanvasElement>(null);
+    const requestRef = React.useRef<number>();
 
     React.useEffect(() => {
         const canvas = canvasRef.current;
@@ -55,6 +57,16 @@ const Canvas: React.FunctionComponent<CanvasProps> = ({ width, height }) => {
         mesh.commit([{ dataType: gl.FLOAT, dimension: 2 }]);
         mesh.numVertices = 6;
 
+        const camera = new OrthogonalCamera({
+            config: {
+                aspectRatio: width / height,
+                size: 10.0,
+            },
+            transform: {
+                initialPosition: vec3.fromValues(0, 0, 1),
+            }
+        });
+
         const transform = new Transform();
 
         const loop = (time: number) => {
@@ -62,24 +74,32 @@ const Canvas: React.FunctionComponent<CanvasProps> = ({ width, height }) => {
             gl.clear(gl.COLOR_BUFFER_BIT);
 
             transform.position = vec3.fromValues(
-                0.3 * Math.cos(0.0004 * Math.PI * time),
-                0.3 * Math.sin(0.0004 * Math.PI * time),
+                5.0 * Math.cos(0.0004 * Math.PI * time),
+                5.0 * Math.sin(0.0004 * Math.PI * time),
                 0
             );
 
             mesh.start();
             material.start();
             material.program.setMatrix('worldTransform', transform.localTransform);
+            material.program.setMatrix('inverseCameraTransform', camera.transform.inverseLocalTransform);
+            material.program.setMatrix('projection', camera.projection);
 
             mesh.render();
 
             mesh.stop();
             material.stop();
 
-            requestAnimationFrame(loop);
+            requestRef.current = requestAnimationFrame(loop);
         };
 
-        requestAnimationFrame(loop);
+        requestRef.current = requestAnimationFrame(loop);
+
+        return () => {
+            if (requestRef.current !== undefined) {
+                cancelAnimationFrame(requestRef.current);
+            }
+        };
     }, [width, height]);
 
     return (

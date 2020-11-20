@@ -1,5 +1,11 @@
 import { vec3, quat, mat4 } from 'gl-matrix';
 
+export type TransformParams = {
+    initialPosition?: vec3;
+    initialRotation?: quat;
+    initialScale?: vec3;
+};
+
 export default class Transform {
     private dirty: boolean;
 
@@ -25,6 +31,21 @@ export default class Transform {
         }
     }
 
+    rotateX(angle: number): void {
+        quat.rotateX(this._rotation, this._rotation, angle);
+        this.dirty = true;
+    }
+
+    rotateY(angle: number): void {
+        quat.rotateY(this._rotation, this._rotation, angle);
+        this.dirty = true;
+    }
+
+    rotateZ(angle: number): void {
+        quat.rotateZ(this._rotation, this._rotation, angle);
+        this.dirty = true;
+    }
+
     private _scale: vec3;
     get scale(): vec3 {
         return vec3.copy(vec3.create(), this._scale);
@@ -38,19 +59,39 @@ export default class Transform {
 
     private _mat: mat4;
     get localTransform(): mat4 {
-        if (this.dirty) {
-            mat4.fromRotationTranslationScale(this._mat, this._rotation, this._position, this._scale);
-            this.dirty = false;
-        }
-
+        this.update();
         return mat4.copy(mat4.create(), this._mat);
     }
 
-    constructor() {
-        this.dirty = false;
-        this._position = vec3.create();
-        this._rotation = quat.create();
-        this._scale = vec3.fromValues(1, 1, 1);
+    private _inverse: mat4;
+    get inverseLocalTransform(): mat4 {
+        this.update();
+        return mat4.copy(mat4.create(), this._inverse);   
+    }
+
+    constructor(params?: TransformParams) {
+        this._position = params?.initialPosition 
+            ? vec3.copy(vec3.create(), params.initialPosition) 
+            : vec3.create();
+        
+        this._rotation = params?.initialRotation
+            ? quat.copy(quat.create(), params.initialRotation)
+            : quat.create();
+        
+        this._scale = params?.initialScale
+            ? vec3.copy(vec3.create(), params.initialScale)
+            : vec3.fromValues(1, 1, 1);
+        
         this._mat = mat4.create();
+        this._inverse = mat4.create();
+        this.dirty = true;
+    }
+
+    private update(): void {
+        if (this.dirty) {
+            mat4.fromRotationTranslationScale(this._mat, this._rotation, this._position, this._scale);
+            mat4.invert(this._inverse, this._mat);
+            this.dirty = false;
+        }
     }
 }
