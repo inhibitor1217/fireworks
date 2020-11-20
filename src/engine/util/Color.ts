@@ -13,6 +13,10 @@ export default class Color {
         this.a = a || 1.0;
     }
 
+    static copy(other: Color) {
+        return new Color(other.r, other.g, other.b, other.a);
+    }
+
     static hex(hexcode: string): Color {
         if (hexcodeRegex.test(hexcode)) {
             const hasAlpha = hexcode.length === 10;
