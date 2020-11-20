@@ -1,10 +1,10 @@
 import React from 'react';
 import { vec3 } from 'gl-matrix';
 import TwoDimDefaultMaterial from './asset/material/TwoDimDefaultMaterial';
-import Mesh from './engine/render/Mesh';
 import Transform from './engine/transform/Transform';
 import { Colors } from './engine/util/Color';
 import OrthogonalCamera from './engine/component/camera/OrthogonalCamera';
+import Meshes from './engine/render/mesh/Meshes';
 
 interface CanvasProps {
     width: number;
@@ -44,18 +44,7 @@ const Canvas: React.FunctionComponent<CanvasProps> = ({ width, height }) => {
 
         const material = new TwoDimDefaultMaterial(gl, { color: Colors.white });
         
-        const mesh = new Mesh(gl);
-        mesh.bindVertices(new Float32Array([
-            -0.5,  0.5,
-            -0.5, -0.5, 
-             0.5, -0.5, 
-             0.5,  0.5,
-        ]));
-        mesh.bindVertexIndices(new Uint32Array([
-            0, 1, 3, 3, 1, 2,
-        ]));
-        mesh.commit([{ dataType: gl.FLOAT, dimension: 2 }]);
-        mesh.numVertices = 6;
+        const mesh = Meshes.square(gl);
 
         const camera = new OrthogonalCamera({
             config: {
