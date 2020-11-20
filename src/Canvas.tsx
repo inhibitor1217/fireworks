@@ -5,6 +5,8 @@ import OrthogonalCamera from './engine/component/camera/OrthogonalCamera';
 import Meshes from './engine/render/mesh/Meshes';
 import RenderedEntity from './engine/component/RenderedEntity';
 import TwoDimGradientMaterial from './asset/material/TwoDimGradientMaterial';
+import SkylineMesh from './asset/mesh/SkylineMesh';
+import TwoDimDefaultMaterial from './asset/material/TwoDimDefaultMaterial';
 
 interface CanvasProps {
     width: number;
@@ -60,6 +62,30 @@ const Canvas: React.FunctionComponent<CanvasProps> = ({ width, height }) => {
             },
         });
 
+        const skylines = [
+            new RenderedEntity({
+                mesh: SkylineMesh(gl, { averageWidthRatio: 0.008, minRelativeHeight: 4.0, maxRelativeHeight: 8.0 }),
+                material: new TwoDimDefaultMaterial(gl, { color: Color.hex('0x202840') }),
+                transform: {
+                    initialScale: vec3.fromValues(20 * width / height, 20, 1),
+                },
+            }),
+            new RenderedEntity({
+                mesh: SkylineMesh(gl, { averageWidthRatio: 0.015, minRelativeHeight: 2.4, maxRelativeHeight: 6.0 }),
+                material: new TwoDimDefaultMaterial(gl, { color: Color.hex('0x10161B') }),
+                transform: {
+                    initialScale: vec3.fromValues(20 * width / height, 20, 1),
+                },
+            }),
+            new RenderedEntity({
+                mesh: SkylineMesh(gl),
+                material: new TwoDimDefaultMaterial(gl, { color: Color.hex('0x050709') }),
+                transform: {
+                    initialScale: vec3.fromValues(20 * width / height, 20, 1),
+                },
+            }),
+        ]
+
         const camera = new OrthogonalCamera({
             config: {
                 aspectRatio: width / height,
@@ -75,6 +101,8 @@ const Canvas: React.FunctionComponent<CanvasProps> = ({ width, height }) => {
             gl.clear(gl.COLOR_BUFFER_BIT);
 
             backgroundEntity.render({ camera });
+            
+            skylines.forEach((skyline) => skyline.render({ camera }));
 
             requestRef.current = requestAnimationFrame(loop);
         };
