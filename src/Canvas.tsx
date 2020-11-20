@@ -1,10 +1,10 @@
 import React from 'react';
 import { vec3 } from 'gl-matrix';
-import TwoDimDefaultMaterial from './asset/material/TwoDimDefaultMaterial';
-import Transform from './engine/transform/Transform';
-import { Colors } from './engine/util/Color';
+import Color from './engine/util/Color';
 import OrthogonalCamera from './engine/component/camera/OrthogonalCamera';
 import Meshes from './engine/render/mesh/Meshes';
+import RenderedEntity from './engine/component/RenderedEntity';
+import TwoDimGradientMaterial from './asset/material/TwoDimGradientMaterial';
 
 interface CanvasProps {
     width: number;
@@ -42,9 +42,23 @@ const Canvas: React.FunctionComponent<CanvasProps> = ({ width, height }) => {
         gl.clearColor(0, 0, 0, 1);
         gl.clear(gl.COLOR_BUFFER_BIT);
 
-        const material = new TwoDimDefaultMaterial(gl, { color: Colors.white });
-        
-        const mesh = Meshes.square(gl);
+        const backgroundEntity = new RenderedEntity({
+            mesh: Meshes.square(
+                gl, {
+                    twoDim: true,
+                    gradient: {
+                        topLeft: Color.hex('0x091422'),
+                        topRight: Color.hex('0x2a102c'),
+                        bottomLeft: Color.hex('0x151a53'),
+                        bottomRight: Color.hex('0x333563'),
+                    }
+                }
+            ),
+            material: new TwoDimGradientMaterial(gl),
+            transform: {
+                initialScale: vec3.fromValues(20 * width / height, 20, 1),
+            },
+        });
 
         const camera = new OrthogonalCamera({
             config: {
@@ -56,28 +70,11 @@ const Canvas: React.FunctionComponent<CanvasProps> = ({ width, height }) => {
             }
         });
 
-        const transform = new Transform();
-
         const loop = (time: number) => {
             gl.clearColor(0, 0, 0, 1);
             gl.clear(gl.COLOR_BUFFER_BIT);
 
-            transform.position = vec3.fromValues(
-                5.0 * Math.cos(0.0004 * Math.PI * time),
-                5.0 * Math.sin(0.0004 * Math.PI * time),
-                0
-            );
-
-            mesh.start();
-            material.start();
-            material.program.setMatrix('worldTransform', transform.localTransform);
-            material.program.setMatrix('inverseCameraTransform', camera.transform.inverseLocalTransform);
-            material.program.setMatrix('projection', camera.projection);
-
-            mesh.render();
-
-            mesh.stop();
-            material.stop();
+            backgroundEntity.render({ camera });
 
             requestRef.current = requestAnimationFrame(loop);
         };
