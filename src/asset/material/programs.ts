@@ -9,39 +9,46 @@ export enum Programs {
     TwoDimInstanced,
 };
 
-export const getProgram = (() => {
+const ProgramManager = (() => {
     let programs: { [key in Programs]?: Program } = {};
 
-    return (gl: WebGL2RenderingContext, key: Programs) => {
-        if (!programs[key]) {
-            switch (key) {
-                case Programs.twoDim:
-                    programs[key] = new Program(
-                        gl, {
-                            vertexShaderSource: twoDimSources.vertexShader,
-                            fragmentShaderSource: twoDimSources.fragmentShader
-                        }
-                    );
-                    break;
-                case Programs.twoDimGradient:
-                    programs[key] = new Program(
-                        gl, {
-                            vertexShaderSource: twoDimGradientSources.vertexShader,
-                            fragmentShaderSource: twoDimGradientSources.fragmentShader
-                        }
-                    );
-                    break;
-                case Programs.TwoDimInstanced:
-                    programs[key] = new Program(
-                        gl, {
-                            vertexShaderSource: twoDimInstancedSources.vertexShader,
-                            fragmentShaderSource: twoDimInstancedSources.fragmentShader,
-                        }
-                    );
-                    break;
+    return {
+        getProgram(gl: WebGL2RenderingContext, key: Programs) {
+            if (!programs[key]) {
+                switch (key) {
+                    case Programs.twoDim:
+                        programs[key] = new Program(
+                            gl, {
+                                vertexShaderSource: twoDimSources.vertexShader,
+                                fragmentShaderSource: twoDimSources.fragmentShader
+                            }
+                        );
+                        break;
+                    case Programs.twoDimGradient:
+                        programs[key] = new Program(
+                            gl, {
+                                vertexShaderSource: twoDimGradientSources.vertexShader,
+                                fragmentShaderSource: twoDimGradientSources.fragmentShader
+                            }
+                        );
+                        break;
+                    case Programs.TwoDimInstanced:
+                        programs[key] = new Program(
+                            gl, {
+                                vertexShaderSource: twoDimInstancedSources.vertexShader,
+                                fragmentShaderSource: twoDimInstancedSources.fragmentShader,
+                            }
+                        );
+                        break;
+                }
             }
-        }
 
-        return programs[key]!;
+            return programs[key]!;
+        },
+        cleanup() {
+            Object.values(programs).forEach((program) => program?.dispose());
+        },
     };
 })();
+
+export default ProgramManager;

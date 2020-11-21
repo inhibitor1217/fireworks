@@ -8,6 +8,7 @@ import TwoDimGradientMaterial from './asset/material/TwoDimGradientMaterial';
 import SkylineMesh from './asset/mesh/SkylineMesh';
 import TwoDimDefaultMaterial from './asset/material/TwoDimDefaultMaterial';
 import FireworksSystem from './lib/fireworks/FireworksSystem';
+import ProgramManager from './asset/material/programs';
 
 interface CanvasProps {
     width: number;
@@ -130,6 +131,11 @@ const Canvas: React.FunctionComponent<CanvasProps> = ({ width, height }) => {
         return () => {
             if (requestRef.current !== undefined) {
                 cancelAnimationFrame(requestRef.current);
+
+                backgroundEntity.dispose();
+                skylines.forEach((skyline) => skyline.dispose());
+                fireworks.dispose();
+                ProgramManager.cleanup();
             }
         };
     }, [width, height]);

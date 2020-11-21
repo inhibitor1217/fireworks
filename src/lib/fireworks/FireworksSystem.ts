@@ -1,9 +1,7 @@
 import { vec2, vec3 } from 'gl-matrix';
-import { getProgram, Programs } from '../../asset/material/programs';
+import ProgramManager, { Programs } from '../../asset/material/programs';
 import { SceneRenderProperties } from "../../engine/component/Scene";
 import Material from '../../engine/render/Material';
-import Mesh from '../../engine/render/mesh/Mesh';
-import Meshes from '../../engine/render/mesh/Meshes';
 import Color from "../../engine/util/Color";
 import { UNIFORMS } from '../../engine/util/const';
 import { randf } from "../../util/rand";
@@ -35,7 +33,6 @@ export default class FireworksSystem {
     params: FireworksSystemParams;
 
     private gl: WebGL2RenderingContext;
-    private particleMesh: Mesh;
     private particles: FireworksParticle[];
 
     private vao: WebGLVertexArrayObject;
@@ -48,8 +45,6 @@ export default class FireworksSystem {
     private worldTransformBuffer: Float32Array;
 
     constructor(gl: WebGL2RenderingContext, params?: Partial<FireworksSystemParams>) {
-        this.particleMesh = Meshes.triangle(gl, { twoDim: true });
-
         this.params = {
             ...defaultParams,
             ...(params || {})
@@ -128,7 +123,7 @@ export default class FireworksSystem {
         this.gl.bindVertexArray(null);
         this.gl.bindBuffer(this.gl.ARRAY_BUFFER, null);
 
-        this.material = new Material(getProgram(this.gl, Programs.TwoDimInstanced));
+        this.material = new Material(ProgramManager.getProgram(this.gl, Programs.TwoDimInstanced));
     }
 
     dispose(): void {
@@ -233,15 +228,12 @@ export default class FireworksSystem {
 
             const particle = new FireworksParticle(
                 this.gl,
-                this.particleMesh,
                 {
                     color: particleColor,
                     velocity,
                     lifetime,
                     systemParams: this.params,
-                    transform: {
-                        initialPosition: vec3.fromValues(position[0], position[1], 0)
-                    },
+                    initialPosition: vec3.fromValues(position[0], position[1], 0),
                 },
             );
 

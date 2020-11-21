@@ -1,5 +1,5 @@
 import Material from "../../engine/render/Material";
-import { getProgram, Programs } from "./programs";
+import ProgramManager, { Programs } from "./programs";
 
 type TwoDimGradientMaterialConfig = {};
 
@@ -10,7 +10,7 @@ export default class TwoDimGradientMaterial extends Material {
     }
 
     constructor(gl: WebGL2RenderingContext, config?: TwoDimGradientMaterialConfig) {
-        super(getProgram(gl, Programs.twoDimGradient));
+        super(ProgramManager.getProgram(gl, Programs.twoDimGradient));
 
         this._config = config;
     }

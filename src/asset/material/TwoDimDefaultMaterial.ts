@@ -1,6 +1,6 @@
 import Material from "../../engine/render/Material"
 import Color, { Colors } from "../../engine/util/Color"
-import { getProgram, Programs } from "./programs";
+import ProgramManager, { Programs } from "./programs";
 
 type TwoDimDefaultMaterialConfig = {
     color?: Color;
@@ -15,7 +15,7 @@ export default class TwoDimDefaultMaterial extends Material {
     color: Color;
 
     constructor(gl: WebGL2RenderingContext, config?: TwoDimDefaultMaterialConfig) {
-        super(getProgram(gl, Programs.twoDim));
+        super(ProgramManager.getProgram(gl, Programs.twoDim));
 
         this._config = config;
         this.color = this.config?.color || Colors.black;
