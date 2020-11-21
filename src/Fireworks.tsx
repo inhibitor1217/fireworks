@@ -10,7 +10,7 @@ import TwoDimDefaultMaterial from './asset/material/TwoDimDefaultMaterial';
 import FireworksSystem from './lib/fireworks/FireworksSystem';
 import ProgramManager from './asset/material/programs';
 
-interface CanvasProps {
+interface FireworksProps {
     width: number;
     height: number;
 }
@@ -28,7 +28,7 @@ function getWebGLContext(canvas: HTMLCanvasElement) {
 
 const SCENE_SIZE = 20.0;
 
-const Canvas: React.FunctionComponent<CanvasProps> = ({ width, height }) => {
+const Fireworks: React.FunctionComponent<FireworksProps> = ({ width, height }) => {
     const canvasRef = React.useRef<HTMLCanvasElement>(null);
     const requestRef = React.useRef<number>();
     const timestampRef = React.useRef<number>();
@@ -145,4 +145,4 @@ const Canvas: React.FunctionComponent<CanvasProps> = ({ width, height }) => {
     );
 };
 
-export default Canvas;
+export default Fireworks;

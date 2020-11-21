@@ -47,6 +47,7 @@ const ProgramManager = (() => {
         },
         cleanup() {
             Object.values(programs).forEach((program) => program?.dispose());
+            programs = {};
         },
     };
 })();

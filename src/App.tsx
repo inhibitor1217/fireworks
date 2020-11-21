@@ -1,5 +1,5 @@
 import React from 'react';
-import Canvas from './Canvas';
+import Fireworks from './Fireworks';
 
 type Dimension = {
     width: number;
@@ -30,8 +30,10 @@ const App: React.FunctionComponent = () => {
     }, []);
 
     return (
-        <div ref={containerRef} style={{ width: '100%', height: '100%' }}>
-            {dimension && <Canvas width={dimension.width} height={dimension.height} />}
+        <div className="container">
+            <div ref={containerRef} className="canvas-wrapper">
+                {dimension && <Fireworks width={dimension.width} height={dimension.height} />}
+            </div>
         </div>
     );
 };

@@ -4,7 +4,7 @@ import { SceneRenderProperties } from "../../engine/component/Scene";
 import Material from '../../engine/render/Material';
 import Color from "../../engine/util/Color";
 import { UNIFORMS } from '../../engine/util/const';
-import { randf } from "../../util/rand";
+import { clamp, randf } from "../../util/rand";
 import { FireworksParticle } from "./FireworksParticle";
 
 export type FireworksSystemParams = {
@@ -23,10 +23,10 @@ const defaultParams: FireworksSystemParams = {
     speedAvg: 2.0,
     speedDiv: 2.0,
     lifetimeAvg: 2.0,
-    lifetimeDiv: 0.3,
+    lifetimeDiv: 0.5,
     emissionRate: 3.0,
-    numParticles: 240,
-    maxParticles: 12000,
+    numParticles: 480,
+    maxParticles: 36000,
 };
 
 export default class FireworksSystem {
@@ -196,9 +196,9 @@ export default class FireworksSystem {
 
     private emitParticles(): void {
         const color = new Color(
-            randf(0.0, 1.0),
-            randf(0.0, 1.0),
-            randf(0.0, 1.0)
+            randf(0.6, 1.0),
+            randf(0.6, 1.0),
+            randf(0.6, 1.0)
         );
 
         const position = vec2.fromValues(
@@ -214,9 +214,9 @@ export default class FireworksSystem {
             }
 
             const particleColor = new Color(
-                color.r + randf(-0.30, 0.30),
-                color.g + randf(-0.30, 0.30),
-                color.b + randf(-0.30, 0.30),
+                clamp(color.r + randf(-0.20, 0.20), 0.0, 1.0),
+                clamp(color.g + randf(-0.20, 0.20), 0.0, 1.0),
+                clamp(color.b + randf(-0.20, 0.20), 0.0, 1.0),
             );
             const angle = randf(-Math.PI, +Math.PI);
             const speed = randf(speedAvg - speedDiv, speedAvg + speedDiv);
