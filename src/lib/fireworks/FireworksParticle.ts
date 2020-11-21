@@ -1,7 +1,8 @@
-import { vec2, vec3 } from 'gl-matrix';
+import { quat, vec2, vec3 } from 'gl-matrix';
 import TwoDimDefaultMaterial from '../../asset/material/TwoDimDefaultMaterial';
+import { EntityParams } from '../../engine/component/Entity';
 import RenderedEntity from "../../engine/component/RenderedEntity";
-import Meshes from '../../engine/render/mesh/Meshes';
+import Mesh from '../../engine/render/mesh/Mesh';
 import Color from "../../engine/util/Color";
 import { FireworksSystemParams } from './FireworksSystem';
 
@@ -10,7 +11,9 @@ export type FireworksParticleParams = {
     velocity: vec2;
     lifetime: number;
     systemParams: FireworksSystemParams;
-};
+} & EntityParams;
+
+const PARTICLE_SIZE = 0.04;
 
 export class FireworksParticle extends RenderedEntity {
     readonly initialColor: Color;
@@ -18,7 +21,6 @@ export class FireworksParticle extends RenderedEntity {
     readonly initialLifetime: number;
     readonly systemParams: FireworksSystemParams;
     
-    private color: Color;
     private velocity: vec2;
     private lifetime: number;
 
@@ -35,18 +37,21 @@ export class FireworksParticle extends RenderedEntity {
         return this._shouldDispose;
     }
 
-    constructor(gl: WebGL2RenderingContext, params: FireworksParticleParams) {
-        const { color, velocity, lifetime, systemParams } = params;
+    constructor(gl: WebGL2RenderingContext, mesh: Mesh, params: FireworksParticleParams) {
+        const { color, velocity, lifetime, systemParams, transform } = params;
 
         super({
-            mesh: Meshes.triangle(gl),
-            material: new TwoDimDefaultMaterial(gl, { color })
+            mesh,
+            material: new TwoDimDefaultMaterial(gl, { color }),
+            transform: {
+                ...transform,
+                initialScale: vec3.fromValues(PARTICLE_SIZE, PARTICLE_SIZE * (1 + Math.sqrt(velocity[0] * velocity[0] + velocity[1] + velocity[1])), 1.0),
+            }
         });
         
         this.systemParams = systemParams;
 
         this.initialColor = color;
-        this.color = Color.copy(this.initialColor);
         this.initialVelocity = vec2.copy(vec2.create(), velocity);
         this.velocity = vec2.copy(vec2.create(), this.initialVelocity);
         this.initialLifetime = lifetime;
@@ -82,6 +87,18 @@ export class FireworksParticle extends RenderedEntity {
                 -this.elapsedTime * this.systemParams.gravity,
             ),
         );
+
+        this.transform.rotation = quat.rotateZ(
+            quat.create(),
+            quat.create(),
+            Math.atan(this.velocity[1] / this.velocity[0]) - 0.5 * Math.PI,
+        );
+
+        this.transform.scale = vec3.fromValues(
+            PARTICLE_SIZE,
+            PARTICLE_SIZE * (1 + Math.sqrt(this.velocity[0] * this.velocity[0] + this.velocity[1] * this.velocity[1])),
+            1.0,
+        );
     }
 
     private degrade(deltaTime: number): void {
@@ -91,7 +108,7 @@ export class FireworksParticle extends RenderedEntity {
             this._shouldDispose = true;
         }
 
-        this.color = new Color(
+        (this.material as TwoDimDefaultMaterial).color = new Color(
             this.initialColor.r,
             this.initialColor.g,
             this.initialColor.b,

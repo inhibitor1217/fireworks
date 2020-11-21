@@ -12,7 +12,7 @@ export default class TwoDimDefaultMaterial extends Material {
         return this._config;
     }
 
-    private color: Color;
+    color: Color;
 
     constructor(gl: WebGL2RenderingContext, config?: TwoDimDefaultMaterialConfig) {
         super(getProgram(gl, Programs.twoDim));

@@ -7,6 +7,7 @@ import RenderedEntity from './engine/component/RenderedEntity';
 import TwoDimGradientMaterial from './asset/material/TwoDimGradientMaterial';
 import SkylineMesh from './asset/mesh/SkylineMesh';
 import TwoDimDefaultMaterial from './asset/material/TwoDimDefaultMaterial';
+import FireworksSystem from './lib/fireworks/FireworksSystem';
 
 interface CanvasProps {
     width: number;
@@ -24,9 +25,12 @@ function getWebGLContext(canvas: HTMLCanvasElement) {
     return gl;
 }
 
+const SCENE_SIZE = 20.0;
+
 const Canvas: React.FunctionComponent<CanvasProps> = ({ width, height }) => {
     const canvasRef = React.useRef<HTMLCanvasElement>(null);
     const requestRef = React.useRef<number>();
+    const timestampRef = React.useRef<number>();
 
     React.useEffect(() => {
         const canvas = canvasRef.current;
@@ -38,6 +42,9 @@ const Canvas: React.FunctionComponent<CanvasProps> = ({ width, height }) => {
         if (!gl) {
             return;
         }
+
+        gl.enable(gl.CULL_FACE);
+        gl.cullFace(gl.BACK);
 
         gl.viewport(0, 0, width, height);
 
@@ -58,7 +65,7 @@ const Canvas: React.FunctionComponent<CanvasProps> = ({ width, height }) => {
             ),
             material: new TwoDimGradientMaterial(gl),
             transform: {
-                initialScale: vec3.fromValues(20 * width / height, 20, 1),
+                initialScale: vec3.fromValues(SCENE_SIZE * width / height, SCENE_SIZE, 1),
             },
         });
 
@@ -67,21 +74,21 @@ const Canvas: React.FunctionComponent<CanvasProps> = ({ width, height }) => {
                 mesh: SkylineMesh(gl, { averageWidthRatio: 0.008, minRelativeHeight: 4.0, maxRelativeHeight: 8.0 }),
                 material: new TwoDimDefaultMaterial(gl, { color: Color.hex('0x202840') }),
                 transform: {
-                    initialScale: vec3.fromValues(20 * width / height, 20, 1),
+                    initialScale: vec3.fromValues(SCENE_SIZE * width / height, SCENE_SIZE, 1),
                 },
             }),
             new RenderedEntity({
                 mesh: SkylineMesh(gl, { averageWidthRatio: 0.015, minRelativeHeight: 2.4, maxRelativeHeight: 6.0 }),
                 material: new TwoDimDefaultMaterial(gl, { color: Color.hex('0x10161B') }),
                 transform: {
-                    initialScale: vec3.fromValues(20 * width / height, 20, 1),
+                    initialScale: vec3.fromValues(SCENE_SIZE * width / height, SCENE_SIZE, 1),
                 },
             }),
             new RenderedEntity({
                 mesh: SkylineMesh(gl),
                 material: new TwoDimDefaultMaterial(gl, { color: Color.hex('0x050709') }),
                 transform: {
-                    initialScale: vec3.fromValues(20 * width / height, 20, 1),
+                    initialScale: vec3.fromValues(SCENE_SIZE * width / height, SCENE_SIZE, 1),
                 },
             }),
         ]
@@ -89,21 +96,32 @@ const Canvas: React.FunctionComponent<CanvasProps> = ({ width, height }) => {
         const camera = new OrthogonalCamera({
             config: {
                 aspectRatio: width / height,
-                size: 10.0,
+                size: 0.5 * SCENE_SIZE,
             },
             transform: {
                 initialPosition: vec3.fromValues(0, 0, 1),
             }
         });
 
+        const fireworks = new FireworksSystem(gl);
+
         const loop = (time: number) => {
             gl.clearColor(0, 0, 0, 1);
             gl.clear(gl.COLOR_BUFFER_BIT);
 
+            /* render phase */
             backgroundEntity.render({ camera });
-            
             skylines.forEach((skyline) => skyline.render({ camera }));
+            fireworks.render(gl, { camera });
 
+            /* update phase */
+            if (timestampRef.current) {
+                const deltaTime = 0.001 * (time - timestampRef.current);
+
+                fireworks.loop(gl, deltaTime);
+            }
+
+            timestampRef.current = time;
             requestRef.current = requestAnimationFrame(loop);
         };
 
