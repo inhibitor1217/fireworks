@@ -112,13 +112,13 @@ const Canvas: React.FunctionComponent<CanvasProps> = ({ width, height }) => {
             /* render phase */
             backgroundEntity.render({ camera });
             skylines.forEach((skyline) => skyline.render({ camera }));
-            fireworks.render(gl, { camera });
+            fireworks.render({ camera });
 
             /* update phase */
             if (timestampRef.current) {
                 const deltaTime = 0.001 * (time - timestampRef.current);
 
-                fireworks.loop(gl, deltaTime);
+                fireworks.loop(deltaTime);
             }
 
             timestampRef.current = time;

@@ -1,10 +1,12 @@
 import Program from "../../engine/render/Program";
 import * as twoDimSources from "../../resource/material/2d";
 import * as twoDimGradientSources from '../../resource/material/2dGradient';
+import * as twoDimInstancedSources from '../../resource/material/2dInstanced';
 
 export enum Programs {
     twoDim,
     twoDimGradient,
+    TwoDimInstanced,
 };
 
 export const getProgram = (() => {
@@ -28,6 +30,15 @@ export const getProgram = (() => {
                             fragmentShaderSource: twoDimGradientSources.fragmentShader
                         }
                     );
+                    break;
+                case Programs.TwoDimInstanced:
+                    programs[key] = new Program(
+                        gl, {
+                            vertexShaderSource: twoDimInstancedSources.vertexShader,
+                            fragmentShaderSource: twoDimInstancedSources.fragmentShader,
+                        }
+                    );
+                    break;
             }
         }
 

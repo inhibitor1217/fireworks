@@ -21,6 +21,7 @@ export class FireworksParticle extends RenderedEntity {
     readonly initialLifetime: number;
     readonly systemParams: FireworksSystemParams;
     
+    color: Color;
     private velocity: vec2;
     private lifetime: number;
 
@@ -52,6 +53,7 @@ export class FireworksParticle extends RenderedEntity {
         this.systemParams = systemParams;
 
         this.initialColor = color;
+        this.color = Color.copy(this.initialColor);
         this.initialVelocity = vec2.copy(vec2.create(), velocity);
         this.velocity = vec2.copy(vec2.create(), this.initialVelocity);
         this.initialLifetime = lifetime;
@@ -108,11 +110,12 @@ export class FireworksParticle extends RenderedEntity {
             this._shouldDispose = true;
         }
 
-        (this.material as TwoDimDefaultMaterial).color = new Color(
+        this.color = new Color(
             this.initialColor.r,
             this.initialColor.g,
             this.initialColor.b,
             this.relativeLifetime
         );
+        // (this.material as TwoDimDefaultMaterial).color = Color.copy(this.color);
     }
 }
