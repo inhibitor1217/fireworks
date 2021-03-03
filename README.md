@@ -1,2 +1,2 @@
 # fireworks
-Fireworks :)
+[Fireworks :)](https://fireworks.inhibitor.io)
